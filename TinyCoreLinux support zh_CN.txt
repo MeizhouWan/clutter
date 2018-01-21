@@ -1,11 +1,11 @@
 TinyCoreLinux Install and zh_CN support
 
 Apps Cloud(Remote) Browse tc-install-GUI.tcz Download+Load GO
-launch tc-install-GUI
+Launch tc-install-GUI
 Frugal Whole Disk next
 ext4 next
 bootloader config: lang=zh_CN.UTF-8 next
-Wifi Support+ Wireless Firmware+ Installer Application next
+Wifi Support+ Installer Application next
 Proceed 
 reboot
 Apps Cloud(Remote) Browse fireflysung.tcz OnBoot GO
