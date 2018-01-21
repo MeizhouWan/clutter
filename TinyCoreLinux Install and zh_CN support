@@ -1,0 +1,17 @@
+Apps Cloud(Remote) Browse tc-install-GUI.tcz Download+Load GO
+launch tc-install-GUI
+Frugal Whole Disk next
+ext4 next
+bootloader config: lang=zh_CN.UTF-8 next
+Wifi Support+ Wireless Firmware+ Installer Application next
+Proceed 
+reboot
+Apps Cloud(Remote) Browse fireflysung.tcz OnBoot GO
+Apps Cloud(Remote) getlocale.tcz Download+Load GO
+Terminal: getlocale.sh
+zh_CN.GB18030/GB18030 zh_CN.GBK/GBK zh_CN.UTF-8/UTF-8 zh_CN/GB2312 OK ENTER
+Apps Cloud(Remote) Browse getFlash.tcz OnBoot GO
+Apps Cloud(Remote) Browse firefox-ESR.tcz OnBoot GO
+test: Apps Maintenance OnBoot Maintenance Select lst firefox-ESR.tcz > On Boot Ltems(onboot.lst)
+Exit Shutdown Backup OK
+END
