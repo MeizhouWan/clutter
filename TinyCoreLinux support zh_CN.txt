@@ -1,3 +1,5 @@
+TinyCoreLinux Install and zh_CN support
+
 Apps Cloud(Remote) Browse tc-install-GUI.tcz Download+Load GO
 launch tc-install-GUI
 Frugal Whole Disk next
