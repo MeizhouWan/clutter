@@ -1,0 +1,37 @@
+Software and tools list
+
+SOFTWARE
++----------------------------+
+|Adblock Plus
+|Adobe Flash
+|Adobe PhotoShop CS6
+|CMake
+|GitHub Desktop
+|Google Chrome
+|Java
+|Lantern
+|Microsoft OneDrive
+|Microsoft Visual Studio Code
+|Oracle VM VirtualBox
+|QQPlayer
+|Steam
+|Tampermonkey
+|TIM
+|Ulead GIF Animator
+|WinMerge
+|Baidu NetDisk
+|MiniThunder
++----------------------------+
+TOOL
++--------------+
+|ArcThemALL!
+|Easy3DMaker
+|lordpe
+|ollydbg
+|PEiD
+|cpuz
+|JSGME
+|PakScape
+|pakview
+|steamcommunity
++--------------+
