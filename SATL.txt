@@ -21,6 +21,8 @@ SOFTWARE
 |WinMerge
 |Baidu NetDisk
 |MiniThunder
+|DVDFab Virtual Drive
+|DOSBOX
 +----------------------------+
 TOOL
 +--------------+
