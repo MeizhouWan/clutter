@@ -21,10 +21,10 @@ SOFTWARE
 |WinMerge
 |Baidu NetDisk
 |MiniThunder
-|
+|Firefox
 |DOSBOX
 |Unlocker
-|
+|Feedreader(http://feedreader.com/download)
 |UltraISO
 +----------------------------+
 TOOL
@@ -39,4 +39,5 @@ TOOL
 |PakScape
 |pakview
 |steamcommunity
+|wxHexEditor
 +--------------+
