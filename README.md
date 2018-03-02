@@ -1,1 +1,1 @@
-English is my no native language. Please excuse typing errors.
+English is my not native language. Please excuse typing errors.
