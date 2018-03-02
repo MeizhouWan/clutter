@@ -1,43 +1,46 @@
-Software and tools list
+Software and Tools list
 
-SOFTWARE
-+----------------------------+
-|Adblock Plus
-|Adobe Flash
-|Adobe PhotoShop CS6
-|CMake
-|GitHub Desktop
-|Google Chrome
-|Java
-|Lantern
-|Microsoft OneDrive
-|Microsoft Visual Studio Code
-|Oracle VM VirtualBox
-|QQPlayer
-|Steam
-|Tampermonkey
-|TIM
-|Ulead GIF Animator
-|WinMerge
-|Baidu NetDisk
-|MiniThunder
-|Firefox
-|DOSBOX
-|Unlocker
-|Feedreader(http://feedreader.com/download)
-|UltraISO
-+----------------------------+
-TOOL
-+--------------+
-|ArcThemALL!
-|Easy3DMaker
-|lordpe
-|ollydbg
-|PEiD
-|cpuz
-|JSGME
-|PakScape
-|pakview
-|steamcommunity
-|wxHexEditor
-+--------------+
+---SOFTWARE---
+Adblock Plus
+Adobe Flash
+Adobe PhotoShop CS6 Extended
+CMake
+GitHub Desktop
+Google Chrome
+Java
+Lantern
+Microsoft OneDrive
+Microsoft Visual Studio Code
+Oracle VM VirtualBox
+QQPlayer
+Steam
+Tampermonkey
+TIM
+Ulead GIF Animator
+WinMerge
+Baidu NetDisk
+MiniThunder
+Firefox
+DOSBOX
+Unlocker
+Feedreader(feedreader.com/download)
+UltraISO
+Radialix 3
+7-Zip
+
+---TOOL---
+ArcThemALL!
+Easy3DMaker
+Scylla
+ollydbg
+PEiD
+cpuz
+JSGME
+Language exe
+pakview(voxelsoft.com/pakview)
+steamcommunity(dogfight360.com/blog)
+wxHexEditor
+ImportREC
+Hash
+UPX(upx.sourceforge.net)
+ResourceHacker(angusj.com/resourcehacker)

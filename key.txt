@@ -1,12 +1,9 @@
-Windows XP Professional (Simplified Chinese)
-CN_WINXP_PRO_ISO.img
-ed2k://|file|CN_WINXP_PRO_ISO.img|530186240|7855069CE4216615D761654E2B75A4F7|/
-HTXH6-2JJC4-CDB6C-X38B4-C3GF3
+en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso
+ed2k://|file|en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso|3320903680|743598C64E635C72964CF02A3E0AD547|/
 
-Windows 8.1 (multiple editions) (x64) - DVD (Chinese-Simplified)
-cn_windows_8_1_x64_dvd_2707237.iso
-ed2k://|file|cn_windows_8_1_x64_dvd_2707237.iso|4076017664|839CBE17F3CE8411E8206B92658A91FA|/
-334NH-RXG76-64THK-C7CKG-D3VPT
+en_windows_xp_professional_with_service_pack_3_x86_cd_x14-80428.iso
+ed2k://|file|en_windows_xp_professional_with_service_pack_3_x86_cd_x14-80428.iso|617756672|2A30BB63730F7887E1AC54363A8489C2|/
+H49F9-8RTVG-MTCVH-G2MFK-C47C8
 
 UltraISO premium edition v9.7.1.3519
 王涛 7C81-1689-4046-626F

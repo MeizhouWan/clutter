@@ -1,0 +1,2 @@
+EBUP>TXT
+Change the name of the file suffix to zip, open the file and find txt or html.
