@@ -6,7 +6,6 @@ Adobe Flash
 Adobe PhotoShop CS6 Extended
 CMake
 GitHub Desktop
-Google Chrome
 Java
 Lantern
 Microsoft OneDrive
