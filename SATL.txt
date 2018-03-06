@@ -2,34 +2,31 @@ Software and Tools list
 
 ---SOFTWARE---
 Adblock Plus
-Adobe Flash
+Adobe Flash(get.adobe.com/flash)
 Adobe PhotoShop CS6 Extended
-CMake
-GitHub Desktop
-Java
-Lantern
-Microsoft OneDrive
-Microsoft Visual Studio Code
-Oracle VM VirtualBox
-QQPlayer
-Steam
+CMake(cmake.org)
+GitHub Desktop(desktop.github.com)
+Java(java.com)
+Lantern(github.com/getlantern/lantern)
+Microsoft OneDrive(onedrive.live.com)
+Microsoft Visual Studio Code(code.visualstudio.com)
+Oracle VM VirtualBox(virtualBox.org)
+QQPlayer(player.qq.com)
+Steam(store.steampowered.com)
 Tampermonkey
-TIM
-Ulead GIF Animator
-WinMerge
+TIM(office.qq.com)
+WinMerge(winMerge.org)
 Baidu NetDisk
-MiniThunder
-Firefox
+MiniThunder(dl.xunlei.com/mini.html)
 DOSBOX
 Unlocker
-Feedreader(feedreader.com/download)
-UltraISO
-Radialix 3
-7-Zip
+FeedDemon(feedreader.com/download)
+UltraISO(ezbsystems.com)
+7-Zip(7-zip.org)
 
 ---TOOL---
-ArcThemALL!
-Easy3DMaker
+ArcThemALL!(arcthemall.sourceforge.net)
+Easy3DMaker(show.gameres.com/Easy3DMaker/Easy3DMaker.zip)
 Scylla
 ollydbg
 PEiD
