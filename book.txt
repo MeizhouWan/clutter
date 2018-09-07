@@ -1,8 +1,6 @@
-look
+plan
 幼学琼林
 怎样解题
-
-plan
 组合数学(Richard A.Brualdi)
 线性数学(Steven J.Lean)
 离散数学及其应用(Kenneth H.Rosen)
@@ -25,3 +23,4 @@ Structure and Interpretation of Computer Programs(Harold Abelson)
 金瓶梅
 沧浪诗话
 张载集
+Osman's Dream: The History of the Ottoman Empire
