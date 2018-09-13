@@ -40,3 +40,4 @@ ImportREC
 Hash
 UPX(upx.sourceforge.net)
 ResourceHacker(angusj.com/resourcehacker)
+CheatEngine(cheatengine.org)

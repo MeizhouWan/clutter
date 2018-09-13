@@ -1,6 +1,5 @@
 plan
-幼学琼林
-怎样解题
+
 组合数学(Richard A.Brualdi)
 线性数学(Steven J.Lean)
 离散数学及其应用(Kenneth H.Rosen)
