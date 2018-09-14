@@ -1,0 +1,8 @@
+Users\xxx\Documents\Paradox Interactive\Europa Universalis IV\mod
+flat_map\map
+    1.lakes
+        00_lakes.txt
+            height = 0
+    2.heightmap.bmp
+        rbg(969696)
+    3.#7b7fff

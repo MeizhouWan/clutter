@@ -1,19 +1,16 @@
 Software and Tools list
 
 ---SOFTWARE---
-Adblock Plus
 Adobe Flash(get.adobe.com/flash)
-Adobe PhotoShop CS6 Extended
+Adobe Reader 9
 CMake(cmake.org)
 GitHub Desktop(desktop.github.com)
 Java(java.com)
 Lantern(github.com/getlantern/lantern)
-Microsoft OneDrive(onedrive.live.com)
 Microsoft Visual Studio Code(code.visualstudio.com)
 Oracle VM VirtualBox(virtualBox.org)
 QQPlayer(player.qq.com)
 Steam(store.steampowered.com)
-Tampermonkey
 TIM(office.qq.com)
 WinMerge(winMerge.org)
 Baidu NetDisk
@@ -23,6 +20,7 @@ Unlocker
 FeedDemon(feedreader.com/download)
 UltraISO(ezbsystems.com)
 7-Zip(7-zip.org)
+GIMP(gimp.org)
 
 ---TOOL---
 ArcThemALL!(arcthemall.sourceforge.net)
@@ -41,3 +39,4 @@ Hash
 UPX(upx.sourceforge.net)
 ResourceHacker(angusj.com/resourcehacker)
 CheatEngine(cheatengine.org)
+Shotcut(shotcut.org)
