@@ -20,7 +20,7 @@ Unlocker
 FeedDemon(feedreader.com/download)
 UltraISO(ezbsystems.com)
 7-Zip(7-zip.org)
-GIMP(gimp.org)
+PhotoFiltre Studio X(photofiltre-studio.com)
 
 ---TOOL---
 ArcThemALL!(arcthemall.sourceforge.net)
@@ -40,3 +40,10 @@ UPX(upx.sourceforge.net)
 ResourceHacker(angusj.com/resourcehacker)
 CheatEngine(cheatengine.org)
 Shotcut(shotcut.org)
+DLL Export Viewer
+logisim
+Enigma Virtual Box
+MathCast
+AutoClicker
+MPQEditor
+Game Extractor
