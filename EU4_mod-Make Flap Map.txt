@@ -5,4 +5,5 @@ flat_map\map
             height = 0
     2.heightmap.bmp
         rbg(969696)
-    3.#7b7fff
+    3.world_normal.bmp
+        #7b7fff
