@@ -1,3 +1,6 @@
+warning:
+1.Picture format mode, one's rpg mode, end's index mode.
+
 Users\xxx\Documents\Paradox Interactive\Europa Universalis IV\mod
 flat_map\map
     1.lakes
