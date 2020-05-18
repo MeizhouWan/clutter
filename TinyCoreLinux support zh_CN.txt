@@ -4,16 +4,24 @@ Apps Cloud(Remote) Browse tc-install-GUI.tcz Download+Load GO
 Launch tc-install-GUI
 Frugal Whole Disk next
 ext4 next
-bootloader config: lang=zh_CN.UTF-8 next
-Wifi Support+ Installer Application next
-Proceed 
+bootloader
+config: lang=zh_CN.UTF-8 next
+Proceed
 reboot
+Apps Select Mirror select> http://mirrors.163.com/tinycorelinux/
+Apps cloud(Remote) Browse mirrors.tcz OnBoot GO
 Apps Cloud(Remote) Browse fireflysung.tcz OnBoot GO
-Apps Cloud(Remote) getlocale.tcz Download+Load GO
-Terminal: getlocale.sh
-zh_CN.GB18030/GB18030 zh_CN.GBK/GBK zh_CN.UTF-8/UTF-8 zh_CN/GB2312 OK ENTER
-Apps Cloud(Remote) Browse getFlash.tcz OnBoot GO
 Apps Cloud(Remote) Browse firefox-ESR.tcz OnBoot GO
+Apps Cloud(remote) Browse firefox-getLatest.tcz Download+Load GO
+Terminal: firefox_getLatest.sh
+Apps Cloud(remote) Browse ffmpeg4.tcz OnBoot GO
 test: Apps Maintenance OnBoot Maintenance Select lst firefox-ESR.tcz > On Boot Ltems(onboot.lst)
 Exit Shutdown Backup OK
 END
+
+Optional
+Apps cloud(Remote) Browse wifi.tcz GO
+
+Document
+bilibili.com/video/BV1h541147AJ
+bilibili.com/video/BV1MW411R7pZ
