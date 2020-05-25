@@ -1,5 +1,4 @@
-warning:
-1.Picture format mode, one's rpg mode, end's index mode.
+make flat map mod:
 
 Users\xxx\Documents\Paradox Interactive\Europa Universalis IV\mod
 flat_map\map
@@ -7,6 +6,6 @@ flat_map\map
         00_lakes.txt
             height = 0
     2.heightmap.bmp
-        rbg(969696)
+        rbg(606060)
     3.world_normal.bmp
         #7b7fff
