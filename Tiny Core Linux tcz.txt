@@ -1,0 +1,10 @@
+Tiny Core Linux tcz
+
+gcc
+glibc_base-dev
+gdb
+make
+man
+man-pages
+man-doc
+gvim

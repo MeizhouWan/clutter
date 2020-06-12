@@ -45,5 +45,7 @@ logisim
 Enigma Virtual Box
 MathCast
 AutoClicker
-MPQEditor
+MPQEditor(zezula.net/en/mpq/download.html)
 Game Extractor
+QuickSFV(quicksfv.org)
+
