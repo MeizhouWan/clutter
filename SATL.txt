@@ -48,4 +48,4 @@ AutoClicker
 MPQEditor(zezula.net/en/mpq/download.html)
 Game Extractor
 QuickSFV(quicksfv.org)
-
+Dia Diagram Editor(sourceforge.net/projects/dia-installer)
