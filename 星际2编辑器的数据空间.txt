@@ -1,0 +1,31 @@
+1.地图另存为组件文件夹.
+2.在Base.SC2Data文件夹里创建GameData.xml.
+GameData.xml的内容为:
+<?xml version="1.0" encoding="utf-8"?>
+<Includes>
+	<Catalog path="GameData/DataSpace.xml"/>
+</Includes>
+
+
+3.(可选)需添加多个额外的数据空间文件,内容为:
+<Includes>
+	<Catalog path="GameData/DataSpace1.xml"/>
+	<Catalog path="GameData/DataSpace2.xml"/>
+	<Catalog path="GameData/DataSpace3.xml"/>
+	<Catalog path="GameData/DataSpace4.xml"/>
+	<Catalog path="GameData/DataSpace5.xml"/>
+</Includes>
+
+
+4.在Base.Sc2Data文件夹下一级的GameData文件夹里创建DataSpace.xml.
+DataSpace.xml是GameData.xml里的<Catalog path="GameData/DataSpace.xml"/>的DataSpace.xml.
+文件名必须和GameData.xml里的数据空间名字相同。
+DataSpace.xml内容为:
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog/>
+
+
+5.(和3.配合)也可以创建DataSpace1,2,3,4,5.xml.
+在GameData.xml里的出现哪个数据空间文件,在GameData文件夹要有相应的数据空间文件.
+
+---END---
