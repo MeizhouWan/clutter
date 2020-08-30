@@ -1,0 +1,98 @@
+该函数可以自由读取GameData下51个数据模板文件中所有模板的内容。我们可用直接用这一个函数来得到所有单位、技能、演算实体、动体、行为、效果、武器、光、升级、验证器等等模板的属性。
+
+native string CatalogFieldValueGet(int catalog,  string templateId,  string prop,  int player);
+
+第一个参数是整数，代表想要读取的是GameData的哪个xml。
+
+Core中的TriggerLibs\GameData下面的GameData.galaxy定义了所有的51个内部XML对应的整数值（话说我总算知道TriggerLibs\GameData下这些个.galaxy件是干嘛的了）。其中0代表AbilData.xml，1代表AchievementData.xml，按照常量名以此类推。以下是51个对应数据文件的常量。
+
+const int c_gameCatalogAbil = 0;
+const int c_gameCatalogAchievement = 1;
+const int c_gameCatalogAchievementTerm = 2;
+const int c_gameCatalogActor = 3;
+const int c_gameCatalogAlert = 4;
+const int c_gameCatalogAttachMethod = 5;
+const int c_gameCatalogBeam = 6;
+const int c_gameCatalogBehavior = 7;
+const int c_gameCatalogButton = 8;
+const int c_gameCatalogCamera = 9;
+const int c_gameCatalogCliff = 10;
+const int c_gameCatalogCliffMesh = 11;
+const int c_gameCatalogConversation = 12;
+const int c_gameCatalogConversationState = 13;
+const int c_gameCatalogCursor = 14;
+const int c_gameCatalogDSP = 15;
+const int c_gameCatalogEffect = 16;
+const int c_gameCatalogError = 17;
+const int c_gameCatalogFootprint = 18;
+const int c_gameCatalogFoW = 19;
+const int c_gameCatalogGame = 20;
+const int c_gameCatalogGameUI = 21;
+const int c_gameCatalogItem = 22;
+const int c_gameCatalogItemClass = 23;
+const int c_gameCatalogItemContainer = 24;
+const int c_gameCatalogLight = 25;
+const int c_gameCatalogLoot = 26;
+const int c_gameCatalogModel = 27;
+const int c_gameCatalogMover = 28;
+const int c_gameCatalogRace = 29;
+const int c_gameCatalogRequirement = 30;
+const int c_gameCatalogRequirementNode = 31;
+const int c_gameCatalogReverb = 32;
+const int c_gameCatalogScoreResult = 33;
+const int c_gameCatalogScoreValue = 34;
+const int c_gameCatalogSound = 35;
+const int c_gameCatalogSoundtrack = 36;
+const int c_gameCatalogTactical = 37;
+const int c_gameCatalogTargetFind = 38;
+const int c_gameCatalogTargetSort = 39;
+const int c_gameCatalogTerrain = 40;
+const int c_gameCatalogTerrainObject = 41;
+const int c_gameCatalogTerrainTex = 42;
+const int c_gameCatalogTexture = 43;
+const int c_gameCatalogTile = 44;
+const int c_gameCatalogTurret = 45;
+const int c_gameCatalogUnit = 46;
+const int c_gameCatalogUpgrade = 47;
+const int c_gameCatalogValidator = 48;
+const int c_gameCatalogWater = 49;
+const int c_gameCatalogWeapon = 50;
+
+string templateID
+第二个参数为字符串类型，代表想要读取的模板的id，也就是那个模板的id属性(Core中的一些默认模板并没有id，是通用模板，可能就无法读取，但这个其实无所谓，手动加上id属性即可)。
+注意，大小写敏感。
+
+string prop
+该参数即指定模板中需要读取的属性。
+注意，使用该参数可以读取模板下任意一级的属性，而不仅仅限于模板的直属属性。
+指定子属性的方式是使用点(.)。
+对于属性数组，需要指定读取数组的哪个元素，用index属性来表示索引。如"InfoArray[Build1]"。
+
+这只是不同玩家的数据不同，而不是不同步。
+从目前的事实来看。SC2读取模板后为每个玩家都准备了一份模板，方便记录他们在游戏进行过程中对模板进行的修改（比如通过科技升级。）
+
+1.<EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>
+2.<InfoArray index="Build1" Unit="TechLab" Time="30">
+3.	<Resource index="Minerals" value="50"/>
+<EditorCategories value="Race:Terran,AbilityorEffectType:Units"/>中的value
+<InfoArray index="Build1" Unit="TechLab" Time="30">中的Unit
+<InfoArray index="Build1">之下的<Resource index="Minerals" value="50"/>中的value
+
+要获得的第一个值其实是该模板的EditorCategories属性的值，因此第三个参数写"EditorCategories"即可
+第二个值其实是该模板的InfoArray属性数组中索引为Build1的属性的子属性Unit的值，因此第三个参数写"InfoArray[Build1].Unit"
+第三个值其实是该模板的InfoArray属性数组中索引为Build1的属性的子属性数组Resource中索引为的Minerals的属性的值，因此第三个参数写"InfoArray[Build1].Resource[Minerals]"
+
+并不是所有同名属性都有各自的index，比如在UnitData.xml里很多单位有多个 名为AbilArray的属性，它们是不是也是属性数组呢？它们之间是怎么区分的呢？
+实际上它们依然是属性数组，仅仅是省略了index而已，而且，该属性数组中每个元素的默认index由它们出现的顺序决定：从0开始，1,2,3,4,5...这样的顺序增长。
+<LifeArmorName value="Unit/LifeArmorName/TerranShipPlating"/>
+<AbilArray Link="attack"/>
+<AbilArray Link="stop"/>
+str=CatalogFieldValueGet(c_gameCatalogUnit, "PointDefenseDrone", "Name", 0);
+str=CatalogFieldValueGet(c_gameCatalogUnit, "PointDefenseDrone", "AbilArray[1].Link", 0);
+Unit/LifeArmorName/TerranShipPlating
+stop
+有些眼尖的同学可能已经注意到，这个模板里并没有Name这个属性阿，这个Name是怎么来的呢？其实它是继承自Core中的CUnit默认模板(default=1)的。因此这个函数可以读取虽然没有显式地出现在当前模板内，但是由当前模板从其他模板继承而来的属性
+
+注意，查询一个存在子属性，本身却没有被指定值的节点性属性并不会提示错误。如果我们直接这样写
+str=CatalogFieldValueGet(c_gameCatalogAbil, "TerranAddOns", "InfoArray[Build1]", 0);
+那么只会返回""，不会提示任何错误。因为InfoArray[Build1]既然存在子属性，那么本身自然也是存在的，只是没有被指定值而已。

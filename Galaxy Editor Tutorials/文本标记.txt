@@ -1,0 +1,26 @@
+<c val="00ff00">Green</c> color.
+<d ref="Unit,Mothership,EnergyRegenRate[0]" precision="3"/> ref data key; precision decimal. precision="3"代表精确到小数点后面第三位。
+<h>Enter</h> shortcut text style.
+<img path="Minimap.tga" color=\"ff0000\" width="" height=""/>
+<info id="unit_id" type="A,B,D,Un,UpP,UpR,W"/> types值为需要显示的信息标记，用半角逗号隔开。 A、B、D、Un、UpP、UpR、W分别指代单位的：技能、行为、探测器、单位、升级、被升级、武器。
+<k val="IdleWorker" count="1"/> val值为快捷键的链接，尚不知是否支持按钮(Button)的快捷键；count值最大计数0-100，不过一般写1就好。 按照快捷键的显示格式显示链接的快捷键的按键值，自带括号。
+<n/> warp.
+<s val="OptionsLabel">OptionsLabel</OptionsLabel> set text style.
+
+<CBehaviorBuff id="SpawnMutantLarvaTimer">
+	<Alignment value="Positive"/>
+	<InfoIcon value="Assets\Textures\BTN-Unit-Zerg-Larva.dds"/>
+	<EditorCategories value="Race:Zerg,AbilityorEffectType:Structures"/>
+	<DisplayCountdown index="Self" value="1"/>
+	<DisplayCountdown index="Ally" value="1"/>
+	<Duration value="40"/>
+	<ExpireEffect value="SpawnMutantLarvaApplySpawnBehavior"/>
+</CBehaviorBuff>
+str="Target Hatchery, Lair, or Hive spawns 4 Larva in <d ref=\"Behavior,SpawnMutantLarvaTimer,Duration\"/> seconds.  If Hatchery, Lair or Hive has more than 3 Larva at one time, regular larva production will stop until there is less than 3 larva.";
+
+<d ref="3x4"/>
+算式的因数并不仅仅局限于直接输入的数字也可以使用从XML中取出的属性，支持括号运算。
+<d ref=\"Effect,250mmStrikeCannonsCreatePersistent,PeriodCount * Effect,250mmStrikeCannonsDamage,Amount\"/>
+周期次数X每周期的伤害=总伤害
+
+<s> small <h> head.
