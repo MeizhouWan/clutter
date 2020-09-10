@@ -1,0 +1,109 @@
+随便写个帖子说下unitref的用法。很多同学大概已经发现Galaxy里有一个unit类型和一个unitref类型。它们究竟有什么区别呢。
+
+单位引用类型unitref有两种引用方式，一个是按单位引用，另一个是按变量名引用。unit和unitref也可以相互转化。
+
+[codes=galaxy]
+native unitref UnitRefFromUnit (unit u);
+native unitref UnitRefFromVariable (string v);
+
+native unit UnitRefToUnit (unitref r);
+[/codes]
+
+初看起来，第一个函数的参数是单位，第二个函数的参数是单位变量的名字。这两个能有何区别，无非是一个直接写变量，一个以字符串形式写变量而已。
+
+但是unitref其实是用于单位事件的，以下例子可以向大家说明按单位引用和按变量名引用的区别。
+
+例1
+[codes=galaxy]
+    TriggerAddEventUnitDamaged(gt_test, UnitRefFromUnit(gv_u), c_unitDamageTypeAny, c_unitDamageEither, null);
+[/codes]
+
+例2
+[codes=galaxy]
+    TriggerAddEventUnitDamaged(gt_test, UnitRefFromVariable("gv_u"), c_unitDamageTypeAny, c_unitDamageEither, null);
+[/codes]
+
+上面两个函数都是注册单位受到伤害事件，但是所注册的单位一个是按照单位引用，一个是按变量引用。
+
+前者的行为方式和war3中类似，被注册的单位是注册函数执行那一刻，gv_u所指向单位，就算以后gv_u被指向其余单位，也只有原单位受到伤害时才会触发。
+
+而例2则完全相反，事件注册时，gv_u所指向的单位无关紧要，这个事件只关注gv_u目前所指向的单位，引发事件的单位是会随着gv_u的变化而变化的。
+
+举例子来说，如果我用方法1来注册伤害事件，执行例1中语句进行注册时，gv_u所指向的单位是某个山丘之王A。那么以后这个A受到伤害事就会引发伤害事件。
+
+而用方法2来注册伤害事件，不管注册时gv_u指向的是谁，只要gv_u目前所指向的单位受到了伤害，就会抛出伤害事件。
+
+要特别注意的是，几乎所有的单位和玩家事件都可以用传递null参数来进行全局注册，比如单位伤害事件里的unitref参数填null的话，那么就是注册所有单位的受伤害事件，所以大家知道为什么galaxy的native函数里只有特定单位事件和特定玩家事件了吧？并非是需要你逐一进行动态注册，而是填入null或者-1就可以注册到所有单位/所有玩家。
+
+所以如果一开始按变量引用所引用的变量值为null，那么所有单位受到伤害都会触发事件，直到这个变量赋了值。
+
+附件是一个演示，以变量引用来注册伤害事件。
+
+一开始地图上有一个执政官，伤害事件注册到一个单位变量u，这个单位变量u一开始指向这个执政官。当伤害事件引发后，触发器会在地图上随机位置创建一个新的执政官。并将这个新执政官赋给u。
+
+你只有伤害这些最后创建的执政官才能触发伤害事件并创建新的执政官。每个执行官被创建时小地图都会显示它的位置。
+
+
+[trigger]
+test
+    Events
+        Unit - u takes Fatal or Non-Fatal Any damage (from Any effects)
+    Local Variables
+    Conditions
+    Actions
+        Unit - Create 1 Archon for player 1 at (Random point in (Entire map)) facing 270.0 degrees (No Options)
+        Variable - Set u = (Last created unit)
+        Ping - Create a ping for (All players) at (Position of (Last created unit)) facing 270.0, using model Minimap Ping and color (0%, 0%, 0%, 0%), lasting 4.0 seconds
+        Ping - Attach (Last created ping) to (Last created unit)
+[/trigger]
+
+大家会发现我为啥直接用gui来做这个事件了？实际上你用gui来注册伤害事件，在参数里选择填上变量的话，gui会自动把代码转换成 UnitRefFromVariable()的方式
+
+所以上面这个例子的事件其实对应的代码是：
+[codes=galaxy]
+TriggerAddEventUnitDamaged(gt_test, UnitRefFromVariable("gv_u"), c_unitDamageTypeAny, c_unitDamageEither, null);
+[/codes]
+
+而如果你直接在地图上选择单位，那么代码会变成这样：
+
+[codes=galaxy]
+TriggerAddEventUnitDamaged(gt_test, UnitRefFromUnit(UnitFromId(1)), c_unitDamageTypeAny, c_unitDamageEither, null);
+[/codes]
+是UnitRefFromUnit()的方式。
+
+比较智能哦：）不过如果要更自由地控制的话当然还是自己写代码比较方便，容易自由控制。
+
+通过UnitRefToUnit来输出unitref当前指向的单位也可以直观地分辨UnitRefFromUnit()和UnitRefFromVariable()两个方式
+
+如以下代码。
+[codes=galaxy]
+    gv_unit = 这里赋一个执政官;
+    ufU=UnitRefFromUnit(gv_unit);
+    ufV=UnitRefFromVariable("gv_unit");
+    gv_unit = 这里赋一个战巡;
+    TriggerDebugOutput(1, UnitTypeGetName(UnitGetType(UnitRefToUnit(ufU))), true);
+    TriggerDebugOutput(1, UnitTypeGetName(UnitGetType(UnitRefToUnit(ufV))), true);
+[/codes]
+
+
+可见ufU对应的单位是固定为UnitRefFromUnit()执行时gv_unit所指向的单位执政官。而ufV对应的单位则是随着gv_unit的变化而变化的。
+
+因此UnitRefFromUnit()相当于直接获取了参数单位的handle值，而UnitRefFromVariable()引用的则是变量本身。
+
+
+[codes=galaxy]
+native unitref UnitRefFromVariable (string v);
+[/codes]
+参数是字符串的话，那么如果是非unit的参数名会如何呢？
+另外，如果是数组该怎么填写呢？
+
+填其它东西相当于填null。会直接注册全局事件。
+
+这种方式如果是给局域变量的话，退出了本函数就会变成对所有人了 有点不安全。
+
+2.0中，unitref可以使用数组了。
+
+
+要特别注意的是，几乎所有的单位和玩家事件都可以用传递null参数来进行全局注册，比如单位伤害事件里的unitref参数填null的话，那么就是注册所有单位的受伤害事件，所以大家知道为什么galaxy的native函数里只有特定单位事件和特定玩家事件了吧？并非是需要你逐一进行动态注册，而是填入null或者-1就可以注册到所有单位/所有玩家。
+
+这句话真的很有用，其实小彬都是分别注册每个玩家的....以后可以简单些了。

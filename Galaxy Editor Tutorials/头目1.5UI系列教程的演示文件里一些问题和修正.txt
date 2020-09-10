@@ -1,0 +1,103 @@
+头目1.5UI系列教程的演示文件里一些问题和修正
+
+最近看了头目的一篇教程：
+1.5UI系列教程第一部——使用触发器来完全控制游戏界面元素~~让我们来制造一个永远开启状态的背包栏吧~~
+http://bbs.islga.org/read-htm-tid-1038317.html
+教程本身没有错误，我这里主要说的是演示文件里的一些问题（可能当时没问题，但在最新的3.16.0.55505里有问题）。
+
+直接运行HookUpSample.SC2Map的话，会出现如下错误：
+       0 UI: 框架[UIContainer/ConsoleUIContainsser/InventoryPanel/ContainerPanel00]在[\Unnamed\Unnamed\GameUI]中无法被关联。
+       0 UI: 框架[UIContainer/ConsoleUIConsstainer/InventoryPanel/ContainerPanel00/Close]在[\Unnamed\Unnamed\GameUI]中无法被关联。
+
+原因是ContainerPanel00元素没有创建，查看InventoryPanel/ContainerPanelTemplate节点，果然发现 延迟创建描述符 <DescFlags val="CreationDeferred"/>
+经测试，发现ContainerPanel00这个元素，只有当玩家选中英雄后才会创建，默认是不会创建的。
+
+而原本头目演示文件里的代码是：
+Init
+    事件
+        TriggerAddEventMapInit()
+    局部变量
+    条件
+    动作
+        TriggerExecute(SetDialogEventNames,true,false)
+        TriggerExecute(HookUpCommandButtons,true,false)
+        TriggerExecute(HookUpInventoryPanel,true,false)
+        UnitSelect(测试英雄 [61.06, 61.24],1,true)
+
+即：先Hook，再Select，这显然有问题，因为Hook的时候还没Select，所以此时ContainerPanel00元素不存在。
+（另一个问题是：TriggerExecute wait = false 可能会出现不同步问题，这里暂不去管他）
+
+经修改后：
+Init
+    事件
+        TriggerAddEventMapInit()
+    局部变量
+    条件
+    动作
+        UnitSelect(测试英雄 [61.06, 61.24],1,true)
+        TriggerExecute(SetDialogEventNames,true,false)
+        TriggerExecute(HookUpCommandButtons,true,false)
+        TriggerExecute(HookUpInventoryPanel,true,false)
+
+即：先Select，再Hook。
+原本以为大功告成，结果发现出现同样的错误。。。
+
+最后通过查看native.galaxy后，发现UnitSelect这个函数是异步的
+// Notes:
+// - UnitSelect and UnitGroupSelect set the local selection state,
+//   which must be then transmitted across the network.
+//
+//   However, UnitIsSelected and UnitGroupSelected query the synchronous selection state,
+//   which means that if you set the selection, then immediately query it, the results will
+//   not match.
+//
+// - Unit selection state cannot be set during map initialization events.
+
+也就是说：
+当你在Trigger上调用了UnitSelect后，底层并不会立即修改游戏的Select状态（当然也不会修改UI状态），而是通过网络发送了Select事件。
+游戏真正的Select状态的改变，需要等到网络数据返回后，即：
+GameLogic handle Select事件 from Network -> 设置游戏Select状态 -> Post UI and Trigger 事件
+UI handle UI事件 游戏Select状态改变 from GameLogic -> 修改UI状态
+Trigger handle Trigger事件 游戏Select状态改变 from GameLogic -> 触发UnitSelected事件
+（值得一提的是：让电脑玩家去SelectUnit是没有任何效果的）
+
+因此，HookUp ContainerPanel00元素的操作，应该在UnitSelected事件里实现，而不是MapInit事件里实现。
+
+最终解决方法：
+1. 修改Init
+Init
+    事件
+        TriggerAddEventMapInit()
+    局部变量
+    条件
+    动作
+        TriggerExecute(SetDialogEventNames,true,false)
+        TriggerExecute(HookUpCommandButtons,true,false)
+        TriggerExecute(HookUpInventoryButtons,true,false)
+        UnitSelect(测试英雄 [61.06, 61.24],1,true)
+
+Init里只HookUpCommandButtons和HookUpInventoryButtons，这两个元素是默认就存在。
+
+2. 单独在UnitSelected事件里，为InventoryContainerPanel做绑定
+HookUpInventoryContainerPanel
+    事件
+        TriggerAddEventUnitSelected(null,c_playerAny,true)
+    局部变量
+    条件
+        Comparison((UnitAbilityExists((EventUnit()),"TestInventory")),==,true)
+        Comparison(inventoryContainerPanelHooked,==,false)
+    动作
+        DialogControlHookupStandard(c_triggerControlTypePanel,"UIContainer/ConsoleUIContainer/InventoryPanel/ContainerPanel00")
+        SetVariable(inventoryContainerPanel,(DialogControlLastCreated()))
+        DialogControlHookupStandard(c_triggerControlTypeButton,"UIContainer/ConsoleUIContainer/InventoryPanel/ContainerPanel00/Close")
+        DialogControlSetVisible((DialogControlLastCreated()),(PlayerGroupAll()),false)
+        DialogControlSetEnabled((DialogControlLastCreated()),(PlayerGroupAll()),false)
+        SetVariable(inventoryContainerPanelHooked,true)
+
+注意：
+1. ContainerPanel00虽然是延迟创建，但只要创建了之后就不会删除，所以这里设置了一个inventoryContainerPanelHooked变量优化性能
+2. DescFlags 只是描述符，修改它是没有用的
+3. Hook Up Inventory Container Panel 这个触发器必须在 Display Inventory Container Panel  这个触发器的上面，因为虽然是同一个事件，但我们希望 Hook Up Inventory Container Panel 这个触发器先触发，因此顺序很重要
+4. native.galaxy里说，UnitSelect这个函数不能在 map initialization events里调用，但我仍然调用了，目前没有发现问题。
+5. 目前这个改法只适合单机，如果要多人的话还需要做数组处理
+6. 还有一种做法：在MapInit的时候创建一个带物品栏的临时单位，并Select，然后wait 0.01秒钟，Remove掉，但这个方法不是很优雅。

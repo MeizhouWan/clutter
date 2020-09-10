@@ -1,0 +1,326 @@
+如何将SC2特定事件转化为通用事件，以及如何注册任意单位任意技能任意阶段事件sc2所有的事件
+
+都是特定事件，只是一旦传入特定的参数，就会自动变成通用的事件而已。
+
+一般来说，这种参数一般是-1（参数是整数类型时）和null(参数是其它类型时)
+
+这个事件，玩家联盟状态变更，如果你的玩家参数填的是0-15之间的数字，它就只会注册对应玩家的联盟状态变更事件。而如果填写-1，那么结果会变成所有玩家的联盟变更事件都会被注册了，而你只需要通过触发玩家来获取触发事件的玩家。
+[trigger]
+test
+    Events
+        Player - Player -1 changes alliances
+    Local Variables
+    Conditions
+    Actions
+[/trigger]
+
+实际上如果大家不是直接写galaxy而是用触发器GUI的话，会在预设值里看到“任意玩家(any player)”这样一个值。如果你查看触发器背后的脚本的话会发现这个预设值是一个常数c_playerAny，其值其实就是-1。
+
+效果发动事件
+[trigger]
+test
+    Events
+        Environment - Player Any Player uses Effect No Game Link
+    Local Variables
+    Conditions
+    Actions
+[/trigger]
+
+其中Any Player就是-1。这样就给所有的玩家注册好事件了，然后如果我想给所有的效果注册事件而不是特定的一个效果怎么办呢？只要什么也不选，使用预设值里的No Game Link即可，也就是说不指定任何效果。而No Game Link其实就是null。没有效果=任意效果。
+
+单位指令事件
+[trigger]
+test
+    Events
+        Unit - Any Unit is issued an order to Any Ability Command
+    Local Variables
+    Conditions
+    Actions
+[/trigger]
+
+这个事件响应任意单位收到任意一个指令。其中任意单位是null，任意命令也是null。这里特别说一下的是sc2的单位指令事件和war3是不同的，sc2的单位指令事件是单位“收到”指令时进行响应，而war3的其实是在单位开始执行一个指令时进行响应。最显著的一个差别是，sc2可以在你下达shift指令的时候就抓到它，而且还能获得你单位指令队列里所有的指令。所以sc2是允许你操作指令队列的。
+
+大部分时候，我们在GUI环境下是直接可以选择将特定事件变成任意事件的预设值。但是GUI里其实有一小部分的事件缺少这样的预设值，不过了解了以上信息以后，大家就可以通过手动输入-1或者null来进行通用事件注册了。
+
+特例
+单位使用技能事件
+[trigger]
+test
+    Events
+        Unit - Any Unit uses null at Generic1 - Any stage (Ignore shared abilities)
+    Local Variables
+    Conditions
+    Actions
+[/trigger]
+
+这个事件可以在指定技能的指定阶段进行响应，比如准备、引导、完成、抢占、进入指令队列什么的，完整的技能阶段可是超多的。如果你在单位参数中填入-1那么就等于注册所有单位，而如果在技能阶段参数中填写-1，那么就是注册所有的阶段。但是唯一的问题在于——技能命令这个参数，按理说这个技能命令和上面第三个例子单位指令事件的技能命令是完全一样的你用null就可以注册所有的技能咯？可惜事实上这是做不到的，如果技能命令参数填写null，那什么技能都捕捉不到。这是一个相当特别的特例。
+
+首先，我们在选择参数的过程中，不选择任何现成的技能命令而是选择技能命令这个函数来自己构造命令。
+[trigger]
+test
+    Events
+        Unit - Any Unit uses (("", 0)) at Generic1 - Any stage (Ignore shared abilities)
+    Local Variables
+    Conditions
+    Actions
+[/trigger]
+
+每个技能命令由技能id和命令索引（比如执行、取消这两个命令索引的值分别是0和1）构成。这样我们就会需要填写两个参数，一个是技能id，另一个是命令索引。由于技能id实际上是字符串型的，我们直接在技能id中用自定义脚本输入""——也就是空字符串。而命令索引填写0的话，经过测试就会发现，这相当于注册了所有技能的命令索引为0时的事件。
+
+但是每个技能命令都不止0这个命令索引，要是能顺带注册所有命令索引的话就好了，可惜在这里给命令索引填写-1是没效果的。但好在所有的技能的命令索引数量都是由技能本身的所属的技能基础类决定的，而且每个技能类拥有的索引数量是固定的。我们只要查看一下Mods\Core.SC2Mod\Base.SC2Data\TriggerLibs\GameData\Abil.galaxy这个文件就能知道每个技能所拥有的命令索引。然后把它们全给注册了就行了。
+
+
+由于技能类太多了，所以我就不在这里列出所有命令索引了，只写一下几个特别的典型，其余部分大家可以自行查看Abil.galaxy来获知。
+
+[codes=galaxy]
+//  EAbilEffectInstantCmd
+const int c_abilEffectInstantCmdExecute = 0;
+const int c_abilEffectInstantCmdCancel = 1;
+const string c_abilEffectInstantCmdExecuteName = "Execute";
+const string c_abilEffectInstantCmdCancelName = "Cancel";
+
+//  EAbilEffectTargetCmd
+const int c_abilEffectTargetCmdExecute = 0;
+const int c_abilEffectTargetCmdCancel = 1;
+const string c_abilEffectTargetCmdExecuteName = "Execute";
+const string c_abilEffectTargetCmdCancelName = "Cancel";
+[/codes]
+
+比如上面这两个例子就是立即效果技能所拥有的命令索引和目标效果技能所拥有的命令索引，我们可以看到它们都只有两个索引，0是执行("Execute")，1是取消("Cancel")。
+
+由于所有的技能类的命令索引都是从0开始每个+1，所以我们只要找到命令索引最多的那个类的索引数量，然后注册这个数量的事件，就能实现注册所有技能的事件了。
+
+命令索引最多的技能类是，建造类技能。
+[codes=galaxy]
+const int c_abilBuildCmdBuild1 = 0;
+const int c_abilBuildCmdBuild2 = 1;
+const int c_abilBuildCmdBuild3 = 2;
+const int c_abilBuildCmdBuild4 = 3;
+const int c_abilBuildCmdBuild5 = 4;
+const int c_abilBuildCmdBuild6 = 5;
+const int c_abilBuildCmdBuild7 = 6;
+const int c_abilBuildCmdBuild8 = 7;
+const int c_abilBuildCmdBuild9 = 8;
+const int c_abilBuildCmdBuild10 = 9;
+const int c_abilBuildCmdBuild11 = 10;
+const int c_abilBuildCmdBuild12 = 11;
+const int c_abilBuildCmdBuild13 = 12;
+const int c_abilBuildCmdBuild14 = 13;
+const int c_abilBuildCmdBuild15 = 14;
+const int c_abilBuildCmdBuild16 = 15;
+const int c_abilBuildCmdBuild17 = 16;
+const int c_abilBuildCmdBuild18 = 17;
+const int c_abilBuildCmdBuild19 = 18;
+const int c_abilBuildCmdBuild20 = 19;
+const int c_abilBuildCmdBuild21 = 20;
+const int c_abilBuildCmdBuild22 = 21;
+const int c_abilBuildCmdBuild23 = 22;
+const int c_abilBuildCmdBuild24 = 23;
+const int c_abilBuildCmdBuild25 = 24;
+const int c_abilBuildCmdBuild26 = 25;
+const int c_abilBuildCmdBuild27 = 26;
+const int c_abilBuildCmdBuild28 = 27;
+const int c_abilBuildCmdBuild29 = 28;
+const int c_abilBuildCmdBuild30 = 29;
+const int c_abilBuildCmdHalt = 30;
+const string c_abilBuildCmdBuild1Name = "Build1";
+const string c_abilBuildCmdBuild2Name = "Build2";
+const string c_abilBuildCmdBuild3Name = "Build3";
+const string c_abilBuildCmdBuild4Name = "Build4";
+const string c_abilBuildCmdBuild5Name = "Build5";
+const string c_abilBuildCmdBuild6Name = "Build6";
+const string c_abilBuildCmdBuild7Name = "Build7";
+const string c_abilBuildCmdBuild8Name = "Build8";
+const string c_abilBuildCmdBuild9Name = "Build9";
+const string c_abilBuildCmdBuild10Name = "Build10";
+const string c_abilBuildCmdBuild11Name = "Build11";
+const string c_abilBuildCmdBuild12Name = "Build12";
+const string c_abilBuildCmdBuild13Name = "Build13";
+const string c_abilBuildCmdBuild14Name = "Build14";
+const string c_abilBuildCmdBuild15Name = "Build15";
+const string c_abilBuildCmdBuild16Name = "Build16";
+const string c_abilBuildCmdBuild17Name = "Build17";
+const string c_abilBuildCmdBuild18Name = "Build18";
+const string c_abilBuildCmdBuild19Name = "Build19";
+const string c_abilBuildCmdBuild20Name = "Build20";
+const string c_abilBuildCmdBuild21Name = "Build21";
+const string c_abilBuildCmdBuild22Name = "Build22";
+const string c_abilBuildCmdBuild23Name = "Build23";
+const string c_abilBuildCmdBuild24Name = "Build24";
+const string c_abilBuildCmdBuild25Name = "Build25";
+const string c_abilBuildCmdBuild26Name = "Build26";
+const string c_abilBuildCmdBuild27Name = "Build27";
+const string c_abilBuildCmdBuild28Name = "Build28";
+const string c_abilBuildCmdBuild29Name = "Build29";
+const string c_abilBuildCmdBuild30Name = "Build30";
+const string c_abilBuildCmdHaltName = "Halt";
+[/codes]
+31个命令索引，前30个都是建造命令，建造技能属性中指定不同建筑。而第31个命令是暂停建造。
+
+所以简单来说我们只要注册0到30这样31个事件，就能达成所有单位所有技能所有技能阶段这样的事件注册了。当然我们直接帖31个事件上去虽然有效但是也有点累人，有脚本基础的同学可以直接通过触发器来帮我们完成这种繁复工作。
+
+假设我们要注册的触发器叫gt_Test
+[trigger]
+Init
+    Events
+        Game - Map initialization
+    Local Variables
+        i = 0 <Integer>
+    Conditions
+    Actions
+        General - For each integer i from 0 to 30 with increment 1, do (Actions)
+            Actions
+                General - Custom Script:     TriggerAddEventUnitAbility(gt_Test, null, AbilityCommand("", lv_i), -1, false);
+[/trigger]
+
+这样gt_Test就能响应任意单位任意技能任意阶段的事件了。
+
+除了触发单位就是触发事件的单位外，大家还可以通过触发编辑器里的触发技能、触发技能阶段、触发技能目标单位、触发技能目标点来获得更多详细内容。它们对应的事件响应函数分别是：
+[codes=galaxy]
+native abilcmd  EventUnitAbility ();
+native int      EventUnitAbilityStage ();
+native point    EventUnitTargetPoint ();
+native unit     EventUnitTargetUnit ();
+[/codes]
+
+然后使用纯galaxy的同学要特别注意一点容易疏忽的地方：
+[codes=galaxy]
+const int c_unitAbilStageComplete           = -6;
+const int c_unitAbilStagePreempt            = -5;
+const int c_unitAbilStageCancel             = -4;
+const int c_unitAbilStageExecute            = -3;
+const int c_unitAbilStageQueue              = -2;
+const int c_unitAbilStageAll                = -1;
+[/codes]
+
+在Native.galaxy里就列出了这么6个技能阶段，所以很多同学会认为技能阶段就那么6个，这是错误的。这只是6个通用阶段而已，完成、抢占、取消、执行、进入队列、任何。这是所有技能都有的阶段，但源自不同技能类是有各自不同的技能阶段的。这些阶段我们同样可以从Abil.galaxy里查得。
+
+实际上Native.galaxy本身就include了TriggerLibs/GameData/GameDataAllNatives.galaxy而GameDataAllNatives.galaxy就include了Abil.galaxy。所以其实Abil.galaxy里的常数也都在脚本基础环境中了。
+
+例如，效果类技能所独有的几个阶段：
+[codes=galaxy]
+const int c_abilEffectStageApproach = 0;
+const int c_abilEffectStagePrep = 1;
+const int c_abilEffectStageCast = 2;
+const int c_abilEffectStageChannel = 3;
+const int c_abilEffectStageFinish = 4;
+const string c_abilEffectStageApproachName = "Approach";
+const string c_abilEffectStagePrepName = "Prep";
+const string c_abilEffectStageCastName = "Cast";
+const string c_abilEffectStageChannelName = "Channel";
+const string c_abilEffectStageFinishName = "Finish";
+[/codes]
+
+0-4分别是接近、准备、施法、引导、完成。
+
+而采集类技能独有的几个阶段：
+[codes=galaxy]
+const int c_abilHarvestStageApproachResource = 0;
+const int c_abilHarvestStageWaitAtResource = 1;
+const int c_abilHarvestStageHarvest = 2;
+const int c_abilHarvestStageWaitToReturn = 3;
+const int c_abilHarvestStageWaitForDropOff = 4;
+const int c_abilHarvestStageApproachDropOff = 5;
+const int c_abilHarvestStageDropOff = 6;
+const string c_abilHarvestStageApproachResourceName = "ApproachResource";
+const string c_abilHarvestStageWaitAtResourceName = "WaitAtResource";
+const string c_abilHarvestStageHarvestName = "Harvest";
+const string c_abilHarvestStageWaitToReturnName = "WaitToReturn";
+const string c_abilHarvestStageWaitForDropOffName = "WaitForDropOff";
+const string c_abilHarvestStageApproachDropOffName = "ApproachDropOff";
+const string c_abilHarvestStageDropOffName = "DropOff";
+[/codes]
+
+0-6分别是接近资源、在资源处等待、采集、等待返回、等待放下、接近放下、放下。
+
+其余的就不列了，大家可以自行查询。而如果你用的是GUI触发器的话，这些技能阶段会都会列在预设值里的。
+
+
+但是大家可能已经发现了：这些每个技能类独有的技能阶段都是从0开始递增的，互相重叠的。所以如果我们打算对这些独有阶段进行捕捉，首先得判断技能的类才行。
+
+好在这一点已经有现成的函数了，我们可以省得使用catalog查找来达到目的。比如判断触发技能是否是立即效果技能。
+[trigger]
+Test
+    Events
+    Local Variables
+    Conditions
+        (Class of (Ability of (Triggering ability))) == Effect (Instant)
+    Actions
+[/trigger]
+
+对应的脚本版本
+[codes=galaxy]
+AbilityClass(AbilityCommandGetAbility(EventUnitAbility())) == c_classIdCAbilEffectInstant
+[/codes]
+
+大家可以看到我们使用的是AbilityClass来获取触发技能的类，我们可以在native.galaxy里看到这个函数返回值是整数类型，所以 c_classIdCAbilEffectInstant其实是个整数。这个值也是Abil.galaxy里指定的，对应的值是13。
+
+36个技能类所对应的常数
+[codes=galaxy]
+//  EClassIdCAbil
+const int c_classIdCAbil = 0;
+const int c_classIdCAbilProgress = 1;
+const int c_classIdCAbilEffect = 2;
+const int c_classIdCAbilQueueable = 3;
+const int c_classIdCAbilRedirect = 4;
+const int c_classIdCAbilArmMagazine = 5;
+const int c_classIdCAbilAttack = 6;
+const int c_classIdCAbilAugment = 7;
+const int c_classIdCAbilBattery = 8;
+const int c_classIdCAbilBeacon = 9;
+const int c_classIdCAbilBehavior = 10;
+const int c_classIdCAbilBuild = 11;
+const int c_classIdCAbilBuildable = 12;
+const int c_classIdCAbilEffectInstant = 13;
+const int c_classIdCAbilEffectTarget = 14;
+const int c_classIdCAbilHarvest = 15;
+const int c_classIdCAbilInteract = 16;
+const int c_classIdCAbilInventory = 17;
+const int c_classIdCAbilLearn = 18;
+const int c_classIdCAbilMerge = 19;
+const int c_classIdCAbilMergeable = 20;
+const int c_classIdCAbilMorph = 21;
+const int c_classIdCAbilMorphPlacement = 22;
+const int c_classIdCAbilMove = 23;
+const int c_classIdCAbilPawn = 24;
+const int c_classIdCAbilQueue = 25;
+const int c_classIdCAbilRally = 26;
+const int c_classIdCAbilRedirectInstant = 27;
+const int c_classIdCAbilRedirectTarget = 28;
+const int c_classIdCAbilResearch = 29;
+const int c_classIdCAbilRevive = 30;
+const int c_classIdCAbilSpecialize = 31;
+const int c_classIdCAbilStop = 32;
+const int c_classIdCAbilTrain = 33;
+const int c_classIdCAbilTransport = 34;
+const int c_classIdCAbilWarpable = 35;
+const int c_classIdCAbilWarpTrain = 36;
+[/codes]
+
+
+最后，特别提醒下大家，一旦注册任意技能事件以后，由于攻击移动采矿什么都会触发事件，而且每个事件都还有超多的不同阶段，所以如果每次都执行动作的话肯定会卡死人的。因此大家应该多多合理安排才对。多多在条件当中多加些判断，过滤出自己真正想要的事件才做动作（一般移动和攻击这两个技能的事件是我们不想要的，我们可以首先在条件里过滤掉它们）。另外如果大家只想捕捉特定技能类的技能事件的话，不但在条件中可以进行过滤，注册事件的时候也可以进行精简，比如如果只想捕捉效果类事件，那么只需要注册0和1两个命令索引就好了。这样可以大大减少性能消耗。
+
+
+
+附了一个演示，用来捕捉所有的效果类技能事件（包括立即效果和目标指向形效果）
+
+然后用debug函数输出所有的相关信息，比如施法单位、技能id、技能索引、技能阶段。
+
+
+演示中核心部分的触发器如下：
+[trigger]
+Test
+    Events
+        Unit - Any Unit uses (("", 0)) at Generic1 - Any stage (Ignore shared abilities)
+        Unit - Any Unit uses (("", 1)) at Generic1 - Any stage (Ignore shared abilities)
+    Local Variables
+        T = No Text <Text>
+    Conditions
+        Or
+            Conditions
+                (Class of (Ability of (Triggering ability))) == Effect (Instant)
+                (Class of (Ability of (Triggering ability))) == Effect (Target)
+    Actions
+        Variable - Set T = (Combine ("单位：", (Name of (Unit type of (Triggering unit))), "  技能ID：", (Text((String((Ability of (Triggering ability)))))), "  技能索引：", (Text((Index of (Triggering ability)))), "  技能阶段：", (Text((Integer((Triggering ability...
+        Debug - Display T as debug output using Type 1, and Do display it in the game window
+[/trigger]

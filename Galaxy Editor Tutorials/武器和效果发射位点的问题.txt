@@ -1,0 +1,68 @@
+一直没搞懂怎么控制飞弹从哪里发射
+
+就是楼上在问吧。我好像都回答过。大和的就是攻击actor里边的attachment - launch attachment Query+
+
+发射点的位置是以模型本身的附着位点为基础的，然后在数据编辑器里的模型数据里把它们整合成附着位点组，然后再到Attach Method里定义附着方案。
+
+再在攻击Actor里的launch attachment Query指定一个附着方案才行。
+
+要做偏移的话还得弄site operation，总体流程很长的。
+
+举例来说，大和舰(Battlecruiser)的模型（Model）中能看到Attachment Properties +这一项，打开看到e_attachRef_Weapon 10,e_attachRef_Weapon 11.....一直到e_attachRef_Weapon 15，他们的Keys中的SetA项值都是1.即是说这些武器附着点都将属于一个SetA=1的附着点组。
+现在看到战巡舰的Battlecruiser Ground Attack的Attachment - Launch Attachment Query +项，你看到了AMfilterWeaponSetA1 AMRandomUniform:Center字样。前两个就是连接附着点组的方案。
+打开方案（Attach Method）页，找到FilterWeaponSetA1，你会看到Keys项的设置，SetA的Index=1的样子，然后看到AMRandomUniform，分布(Distribution）项值写着Uniform平均分布的样子，那就是说这两个方案的结合效果就是，将在攻击时从SetA1附着点组中随机抽取一个点发射，而这个概率是呈平均分布的。
+
+所以如果想从舰首射出光线，可以直接修改Battlecruiser Ground Attack这个Actor的Attachment - Launch Attachment Query项的方案，将它改为从附着点e_attachRef_weapon 09发射，而这个附着点SetA=2，所以这里应该填入的方案是FilterWeaponSetA2.&#160;
+
+如果依我所了解的，
+
+一般遊戲模型會加許多點，這些點在遊戲都有統一名稱，
+讓編輯器好找到這些點
+
+這些點就事一些動作(武器發射出發點模型增加點)的附加方法，
+
+例如陸戰隊升級盾牌，盾牌模型就會加在陸戰隊模型一個點，
+
+要找出模型有的點我也不知道在哪= =，
+
+要想辦法在3DMAX打開模型檔看，
+
+在動作者中有一欄主動作者的部位運\算，
+就有顯示許多附加點(頭上或模型中心等)和運\算符號(隨機或偏移等)
+
+只是星海編輯器，
+武器攻擊動作者又有發射附加可以選武器組00 01 1等....然後又衰減中央手等等
+
+又有分頁可以編輯附加方法老實說...我被弄得一頭霧水= =，
+
+
+目標- 發射部位的運\算 欄位---->這應該是發射點的運\算如偏移   
+附加物- 發射附件查詢--->這應該是發射點設定
+
+但是上面這兩個是有關連，
+
+只是有些模型設定應該是沒有發射點。
+
+可以在菜单栏里钩上显示附着位点以在模型上标出他们的位置和方向。
+
+
+AMfilterWeaponSetA1
+
+
+每个模型都有不同的附着点。。鉴于大部分模型都是用Weapon 或者Weapon XX（XX是数字），
+所以在Launch Attachment Query 里面用AMFilterWeapon 就可以了。
+
+AMFilterXXX的作用就像其名字，有着筛选出特定附着点的功能（过滤器Filter）
+
+像Vking就是 Weapon 00和Weapon 01，Vulture摩托是 Weapon00和Weapon02。
+大和我没看过，但是他的附着点都在每一个小炮塔的炮口。
+
+AMFilterWeaponSetA1， 这个不仅简单的调用了大和的所有炮点，而且分配了发射顺序，所以我认为这样的WeaponSet是暴雪为自己的模型特别设定的。
+
+“打开方案（Attach Method）页，找到FilterWeaponSetA1，你会看到Keys项的设置，SetA的Index=1的样子，然后看到AMRandomUniform，分布(Distribution）项值写着Uniform平均分布的样子，那就是说这两个方案的结合效果就是，将在攻击时从SetA1附着点组中随机抽取一个点发射，而这个概率是呈平均分布的。”——这个说法我很赞同。
+
+————————————————
+而且貌似从Attach Method里能看到阿。。我一直以为那个是没用的东西。。
+
+
+像Marauder那样的打一炮换一只手的。。。我还没研究过。。不过会很好玩。。LOL

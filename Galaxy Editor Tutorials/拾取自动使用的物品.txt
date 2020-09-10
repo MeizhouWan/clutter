@@ -1,0 +1,55 @@
+SC2的物品其实就是一种特殊单位。它的Item属性链接了ItemData.xml里的一个物品模板，所有物品使用效果来自该物品模板。
+
+实际上拾取后立即使用的物品和ItemData.xml毫无关系，仅仅和单位模板有关。
+
+其实在Core中已经定义了一个拾取后立即使用的物品的默认模板
+
+[codes=xml]
+    <CUnit default="1" id="POWERUP">
+        <DeathRevealRadius value="0"/>
+        <DeathRevealDuration value="0"/>
+        <Response value="Nothing"/>
+        <LifeStart value="10"/>
+        <LifeMax value="10"/>
+        <StationaryTurningRate value="0"/>
+        <TurningRate value="0"/>
+        <MinimapRadius value="0"/>
+        <EditorCategories value="ObjectType:Item"/>
+        <PowerupEffect value="##id##"/>
+        <PowerupCost>
+            <Charge>
+                <CountMax value="1"/>
+                <CountStart value="1"/>
+                <CountUse value="1"/>
+                <Link value="##id##"/>
+            </Charge>
+            <Cooldown Link="##id##"/>
+        </PowerupCost>
+        <FlagArray index="Turnable" value="0"/>
+        <FlagArray index="Uncommandable" value="1"/>
+        <FlagArray index="KillCredit" value="0"/>
+        <Fidget DelayMin="0" DelayMax="0"/>
+    </CUnit>
+[/codes]
+关键属性是PowerupEffect和PowerupCost
+
+PowerupEffect
+指定的是物品拾取时的效果。
+
+PowerupCost
+指定的是拾取时消耗的资源、法力等等。
+
+其实还有一个属性，Core中没有列出。
+PowerupFilters
+目标过滤。比如你可以指定只有英雄才可以拾取之类的。
+目标过滤字符串的格式为
+"必须对其使用的目标;不允许对其使用的目标"用分号隔离，
+如
+"Visible;Self,Structure,Missile,Stasis,Dead,Hidden,Invulnerable"
+代表：必须对可见目标使用，不能对自己使用，不能对建筑使用，不能对导弹使用，不能对被静态立场的单位使用，不能对死亡的单位使用，不能对隐藏单位使用，不能对无敌单位使用。
+如果对其中一方不作指定，可以直接写-号表示忽略。"Ground,Visible;-"就表示只能对可见的陆地单位使用。
+
+注意几个要点：
+在默认情况下，所有单位都可以拾取这些“拾取后自动使用的物品”，即使它们没有物品栏，所以与其说是“拾取”，不如说是“接触”。因此才需要用PowerupFilters来进行目标过滤。
+当效果需要指定目标的时候，拾取物品的单位本身是默认目标，当然你可以修改效果进行强行指定。
+这类物品在被“拾取”后会立刻死亡，就像war3里的神符类物品一样。

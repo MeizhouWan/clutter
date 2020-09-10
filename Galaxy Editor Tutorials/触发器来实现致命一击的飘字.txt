@@ -1,0 +1,151 @@
+触发器来实现致命一击的飘字
+
+一般而言，由于我的致命一击是用buff实现的，目标在伤害响应时身上必定有 Take Double Damage Once这个buff。所以一般的想法都是注册伤害事件然后判断单位身上有没有这个buff。
+
+可是这样的做法是不完美的，在低频率的伤害下可以捕捉到buff，但是一旦一个游戏周期内出现多个队列伤害，那么就会出现问题。因为数据编辑器的伤害响应是发生在伤害实际发生之前（简单地讲，目标的HP还没变化）。而触发器的伤害事件却在单位实际受到伤害之后。一旦伤害频率过高，就会出现等触发器捕捉到伤害事件时，buff已经不在了的问题。
+
+那么触发器有没有在实际造成伤害前响应伤害并获得伤害值的事件呢？没有。就算是捕捉伤害效果也是一样的，当触发器捕捉到伤害效果时，伤害已经造成了。所以这里就的用些窍门了。虽然触发器不能直接捕捉“伤害前”事件，但是至少可以捕捉到效果，而我那个致命一击演示，却正好在伤害响应时会发出一个效果“附加下一次受到的伤害增加一倍的行为”。我们捕捉这个效果，那就肯定能赶在伤害实际造成之前了，而且又不会太早，因为这时候游戏正好开始对当前这次伤害进行处理。
+
+但是就算我们抓到了这个时机，我们依然还是无法获得伤害值。因为触发伤害值只有在事件是单位受到伤害时才能获得，怎么办呢？
+
+这里的要点就是：游戏是不会在当前伤害效果处理完之前就处理队列中的下一个伤害的。所以从触发器捕捉到附加buff的效果开始，到触发器捕捉到伤害事件之间，队列中的其余伤害事件不会被触发器捕捉到。
+
+于是我们可以这样，捕捉效果事件，然后给效果目标动态注册一个触发，触发事件为该单位受到伤害，然后立刻销毁当前触发，确保当前触发只会执行一次，并捕捉伤害值然后飘字。
+
+这样确实很完美，但是总感觉不断创建和销毁触发器不是很理想的事情。毕竟这样比较耗效率。考虑到这些临时触发器是不可能同时被触发的，因为上面说过了伤害队列的处理原则。所以如果我们能使用一个固定的触发器，每次更改这个触发器所注册的伤害事件单位就好了。
+
+回过头去说，其实我们并不是一定要给效果目标来注册伤害事件，注册任意单位受到伤害事件反而更方便，因为伤害响应之后接下来受到伤害的单位肯定就是效果目标。（除非你用触发器在效果事件发生时直接删了目标单位——我们当然不会这么做）。但是能注册单体事件的话总比注册任意事件来的好，何况还能多个保险。
+
+偏巧Galaxy就有个不用重复注册和销毁触发器又不需要注册任意单位事件就能更改注册单位的方法。
+
+我们只要放一个单位类型的全局变量，给触发器注册这个变量名就好了。这样我们只要随时更改这个变量指向的单位，触发器所注册的单位也就会随之改变了。
+
+所以我们只需要两个触发器和一个全局变量：
+
+A触发器注册Take Double Damage Once效果事件。动作为将全局变量设为效果目标，然后启用B触发器。
+B触发器用unitref来注册一个单位变量的受伤事件，初始化时为关闭状态。B触发器触发后立刻关闭自身。然后获取伤害值，进行飘字。
+
+
+我们固然可以用触发器来实现飘字，不过能用Actor系统的话为何不用呢。我们可以用CActorText来创建字符串Actor，用CActorSiteMover来让字符串动起来。
+
+这样，触发器需要做的事情就只剩下发送2条Actor消息了。第一条：在受伤单位Actor Scope中创建字符串Actor，第二条，设置字符串Actor的字符。
+
+毕竟从一开始我们使用触发器就只是为了获得伤害值而已。
+
+要注意一下，由于我们不希望迷雾中看不到的单位也会飘字暴露它们的位置，所以我们要设置字符串Actor的属性来源为受伤单位的Actor，并继承其可见性属性。这样，你看不见的单位就不会显示飘字了。
+
+
+
+所以我们触发器部分只需要这么几句
+
+触发器1，2句动作。
+
+[trigger]
+Pre-damage Register
+    Events
+        Environment - Player Any Player uses Effect Take Double Damage Once
+    Local Variables
+    Conditions
+    Actions
+        Variable - Set Registered Damage Target = (Triggering Effect Unit(Target))
+        Trigger - Turn Send Damage Amount On
+[/trigger]
+
+触发器2，3句动作。初始化时为关闭状态。
+
+注意最后一句动作中的"SetText"就是用来改变字符串Actor的字符的消息。
+[trigger]
+Send Damage Amount
+    Events
+        Unit - Registered Damage Target takes Fatal or Non-Fatal Any damage (from Any effects)
+    Local Variables
+        TextString = (String((Triggering damage amount)) with Any Precision decimal places) <String>
+        Actor = (Actor for (Triggering unit)) <Actor>
+    Conditions
+    Actions
+        Trigger - Turn Send Damage Amount Off
+        Actor - Send message "Create CritText" to actor Actor
+        Actor - Send "SetText "+lv_textString to the "::LastCreatedActual" actor of Actor
+[/trigger]
+
+
+
+用来实现飘字的Actor两个。
+
+[codes=xml]
+    <CActorText id="CritText">
+        <Inherits index="Visibility" value="1"/>
+        <On Terms="ActorCreation" Send="TimerSet 0.010000 StartMover"/>
+        <On Terms="ActorCreation" Send="TimerSet 3.000000 Die"/>
+        <On Terms="ActorCreation" Send="SetOpacity 0.000000 2.000000"/>
+        <On Terms="TimerExpired; TimerName StartMover" Send="Create CritTextMover"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <Host Subject="_FloatingText"/>
+        <FixedSize value="40"/>
+        <HeightOffset value="1.500000"/>
+        <Color value="255,255,34,0"/>
+        <HostForProps Subject="_Unit"/>
+    </CActorText>
+    <CActorSiteMover id="CritTextMover">
+        <Terms value="Cap 2"/>
+        <FogVisibility value="Hidden"/>
+        <On Terms="ActorCreation" Target="::Creator" Send="RefSetFromMsg ::Host ::Sender"/>
+        <On Terms="ActorCreation" Send="MoverSetDestinationH 3.000000"/>
+        <On Terms="ActorCreation" Send="MoverMove"/>
+        <On Terms="ActorCreation" Send="TimerSet 3.000000 Die"/>
+        <On Terms="TimerExpired; TimerName Die" Send="Destroy"/>
+        <Acceleration value="5.000000"/>
+        <Deceleration value="1.000000"/>
+        <Speed value="1.000000"/>
+        <SpeedMax value="1.000000"/>
+    </CActorSiteMover>
+[/codes]
+
+
+怎么样，虽然里面包含的知识很多，但是真正实现的时候只需要没几行触发和xml呢。
+
+如果大家愿意的话还可以把物理和法术伤害的爆击分开，只要修改暴击buff侦测的伤害类型就行了。这样还可以把物理和法术暴击的飘字分别染上不同的颜色。
+
+
+發現個問題。
+當連續暴擊時，比如連續暴擊2次或3次紅字會被卡住出現重疊的現象。
+
+
+这一点都不是问题~~而是刻意为之的~~为了不让单个单位身上移动的字符过多~~
+
+而且可以使得漂浮文字移动方式多样化一样~~不至于千篇一律~~
+
+要增加单个单位头上的移动的字符~~直接修改Crit Text Mover的Cap~~目前我设为2了~~设成0就是不限制~~
+
+
+无缝连这个是关键
+有了这个咋做都可以了
+
+做点改动的话就是这样了：
+trigger1:
+event : effect crit
+action : critflag(bool) = true
+
+trigger2:
+event : damage take
+action : ~~~~~（if then else）~~~
+
+
+这样做自然是可以~~但是就如上面所说~~由于实际游戏中伤害事件是很频繁的~~所以才尽量不采用全局伤害事件~~
+
+而且用unitref进一步缩小为只追踪效果目标~~由于我这个东西是以做进GAx3 Mod为目标的~~所以尽最大可能减少资源消耗好提高效率~~只在确定会造成暴击时才启动触发器~~
+
+
+
+当然如果你想要所有伤害不管是否致命一击都显示出来~~那倒是可以这么做~~
+
+
+除了 SetOpacity 没有效果 。。。。
+
+
+呃...我想问一下
+CritTextMover的这行
+<On Terms="ActorCreation" Target="::Creator" Send="RefSetFromMsg ::Host ::Sender"/>
+
+它的意思是不是将CritText的Host设置为CritTextMover呢？
+RefSetFromMsg 和RefSet的差别到底是什么呢？

@@ -1,0 +1,30 @@
+用Windows->Console打开控制台~~或者按Alt+`~~
+
+!! - 重复上一个命令
+bnetlogin - 登陆Battle.net (使用文件->配置中的账号资料)
+bnetlogout - 登出Battle.net
+bnetstatus - 汇报当前BN连接状况
+browse - 打开MPQ浏览器，浏览游戏MPQ包中所有的文件
+cachesize - 汇报目前用于缓存编辑器数据所消耗的内存
+cliffinfo - 打开/关闭地形编辑器状态栏中的悬崖信息显示
+dice (count = 1) (sides = 6) - 由给出的骰子数与面数得到一个随机值
+filecount (directory) - 计算硬盘上指定文件夹中包含的文件总数（包含子目录）
+game - 调用一个游戏作弊码
+help - 显示本命令列表
+helpmods - 显示基于模组的命令的关键字列表
+locale (locale code) - 更改编辑器语种
+memwin - 打开/关闭内存占用监视窗口
+multcam (field) (factor) - 对于当前地图中选中的所有镜头，将它们的给定字段的值乘以参数中给定的因数（不加参数的情况下使用该命令则会显示所有镜头字段关键字的列表）
+shake (amplitude) (frequency) (random factor) (duration) (direction = <x><y><z>) (position = <eye><target><both>) - 根据给定参数震动地形编辑器的镜头
+spell (word) - 检查给定单词是否在拼写检测字典中
+spellsize - 汇报目前拼写检测模块所占用的内存
+sysmem - 实时显示系统内存占用
+texuvget - 显示当前地形的贴图uv值
+texuvset (scalex) (scaley) (offsetx = 0) (offsety = 0) - 改变当前地形的贴图uv值
+undosize - 汇报用于保存指定模块中撤销信息所占用的内存
+varget (variable) - 显示指定变量的当前值
+varlist - 列出所有变量和它们的值
+varset (variable) (value) - 设置指定变量的当前值
+vartog (variable) - 开关指定变量
+vidmem - 实时显示显存占用
+注2：以上的变量是指编辑器和游戏的环境变量。至于脚本变量的追踪则是用Debug窗体来进行的。

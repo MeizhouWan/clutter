@@ -1,0 +1,29 @@
+带签名Bank保存格式
+
+<?xml version="1.0" encoding="utf-8"?>
+<Bank version="1">
+    <Section name="Hero">
+        <Key name="Spectre">
+            <Item3 string="ShapeMoneyBag2,0,0"/>
+            <ItemCount int="5"/>
+            <Type string="Spectre"/>
+            <Shields fixed="0"/>
+            <XP fixed="0"/>
+            <Life fixed="125"/>
+            <Item1 string="ShapeMoneyBag2,4,64"/>
+            <Item4 string="SCV2,0,1"/>
+            <Energy fixed="84.8593"/>
+            <Item2 string="ShapeMoneyBag2,5,64"/>
+            <Item0 string="ShapeMoneyBag2,3,64"/>
+        </Key>
+    </Section>
+    <Signature value="36A2AFA1BBEA01C88121082D375C3D78B519F450"/>
+</Bank>
+
+可以看见Bank里直接添加了一个很长的数字签名，这个数字签名由当前Bank内所保存的内容所决定。
+
+这个数字签名是可选的，要给Bank加上数字签名，你需要在保存Bank前执行一句函数：
+BankOptionSet(lv_b,c_bankOptionSignature,true);
+其中lv_b是你希望签名的Bank变量。
+
+你可以通过native bool     BankVerify (bank b);这个函数来验证Bank。一旦Bank被人改过就会和数字签名对不上，这样就会被这个函数检测出来。
