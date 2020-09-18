@@ -1,0 +1,40 @@
+增加新的中立建筑：叛军导弹塔
+	叛军导弹塔对地图上的所有玩家都为敌对状态。
+	在被摧毁前它的位置会一直在小地图上可见。
+	与人类的导弹塔的数值一致。
+	像其它建筑一样可以被摧毁。
+	在编辑器中必须设置给玩家15才能正常运作。
+	开发团队注：我们为对战地图制作者增加了叛军导弹塔作为新的工具。与萨尔纳加瞭望塔、高能水晶、可摧毁岩石一样，我们希望这个建筑的创意可以运用在未来的地图制作大赛中。   
+
+增加了多个触发器和全局函数来获取和比较游戏进行的日期和时间。
+	Convert DateTime To Integer
+	Convert Integer To DateTime
+	Convert DateTime To String
+	Convert String To DateTime
+	Current DateTime
+	Initial DateTime
+	Get DateTime Year
+	Get DateTime Month
+	Get DateTime Day
+	Get DateTime Hour
+	Get DateTime Minute
+	Get DateTime Second
+	Get DateTime Weekday Index
+	Synchronous Game Start Time
+	Current Synchronous Game Time
+	Get Current Day of Week
+	DateTime is Before
+	DateTime is After
+	DateTime is Between
+	Get Weekday From DateTime
+	Get Month From DateTime
+	DateTime is Weekend
+	DateTime is Morning
+	DateTime is Afternoon
+	DateTime is Evening
+	Format DateTime as String
+
+数据编辑器
+	为武器、行为和创建持续效果增加一个“Rate Multiplier”字段。
+	武器 – 让你可以按百分比调整武器的攻击速度。
+	行为和创建持续效 – 调整周期性效果的执行速度。

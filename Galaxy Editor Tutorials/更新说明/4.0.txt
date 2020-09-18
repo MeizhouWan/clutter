@@ -1,0 +1,36 @@
+在《星际争霸II》的API中添加了新的功能：
+现在在包括Linux在内的所有平台上都使用了新的渲染界面。
+在游戏模拟中添加了一个新的选项来创建和加载保存点。
+在游戏数据API中添加了一个新的功能用于下载匿名天梯比赛回放。
+欲了解更多，请查看我们的GitHub页面的发布说明。
+github.com/Blizzard/s2client-proto/releases
+
+4.0银河编辑器的变化和优化
+	虚拟机进行了大量优化和重构。
+	对以下触发器中触发特定循环的优化行为进行了修改：
+		ForEachInteger
+		ForEachInteger2
+		PickEachInteger
+		IntLoopCurrent
+		ForEachPlayerInGroup
+		PickEachPlayerInGroup
+		PlayerGroupLoopCurrent
+		ForEachUnitInGroup
+		PickEachUnitInGroup
+		UnitGroupLoopCurrent
+		switch/switchcase
+
+开发团队注：这些改动现在要求IntLoopCurrent, PlayerGroupLoopCurrent, 和UnitGroupLoopCurrent这些函数在它们的循环内更符合 “词法上的范围限定”而非“动态的范围限定”。比如，之前如果你触发器中有ForEachInteger, ForEachPlayerInGroup, 或 ForEachUnitInGroup外部函数，内部函数也可以调用一个能访问IntLoopCurrent, PlayerGroupLoopCurrent, 或UnitGroupLoopCurrent函数的触发器。但是以后，你只能选择依次调用这些触发器，或者将IntLoopCurrent, PlayerGroupLoopCurrent,或UnitGroupLoopCurrent作为参数传递给你使用循环迭代的触发器。
+
+	这些修改包括在sc2map上被保存或重新保存在编辑器中的代码生成。
+	如果没有进行重新保存，使用旧版银河编辑器系统生成的地图现在向后兼容新的银河编辑器系统，但它们不会得到循环优化。
+	TriggerDebugInterface已经被修改以遵守新的调整。
+	UI编辑器改动
+		移除了UI编辑器中的FrameView。
+		更改为总是以xml格式来保存你的布局。
+		当发生错误的时候，增加在布局文件时xml错误消息提示。
+	Mod改动
+		将建筑、效果、头像、装饰物、单位以及TerrainObjects从自由之翼战役Mod中移至自由之翼Mod中。
+	界面改动
+		在一般偏好选项新增“Enable Dark Editor Theme”复选框。
+		当编辑xml时会在黑暗模式之间切换。

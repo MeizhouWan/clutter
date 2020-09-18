@@ -1,0 +1,12 @@
+改良地形编辑器模组物体搜索。
+添加原生子程序：BankBackupGetId、BankBackupGetLatestId、BankBackupRemove、BankBackupLoopBegin、BankBackupLoopStep、BankBackupLoopDone、BankBackupLoopCurrent、BankBackupLoopEnd以允许遍历和管理备份库。
+更改Scintilla代码和XML编辑器以使用UTF 8字符集来显示所有语言的提示信息。
+修改Scintilla提示文本，当提示是长字符串时不会满屏显示。
+修复缺失的触发器纠错分析方便模组制作者进行触发器纠错。
+移除新手账户限制，对所有拥有付费内容的用户开放编辑器功能。
+现在所有编辑器用户都可以查看《自由之翼》的战役地图。
+添加原生事件：EventHotKeyPressed用于队列按下的热键。
+添加原生子程序：UnitControlGroup用于获取当前选择的单位编组。
+添加Scintilla代码编辑器到触发器错误查看界面。
+改良文本编辑器的搜索功能。
+添加单位编组优化。

@@ -1,0 +1,194 @@
+演算体(Actor)相位技术系列其之一：为不同玩家异步显示/隐藏/销毁演算体
+
+所谓相位技术，玩过WOW的同学可能会有所了解，就是两个玩家观察同一个地点，却看到完全不同的东西。听到不同的声音。这样，每个玩家都相当于在玩单机角色扮演游戏。可以通过任务来对世界造成实际的变化和影响，但又不会影响到其余玩家的游戏进程。
+
+这个技术是由异步地显示和隐藏视觉效果和声音效果而实现的。此前我在War3里搞过活动，让大家来比赛实现这个东西。也有不少不错的作品。
+
+不过War3中的异步支持是很差的，除了极少一部分可以异步创建的效果外，其余基本都是模拟的，本质上就是什么东西都用单位来模拟，然后单位由于可以对某个玩家隐形，对其它玩家显形。这样就可以变相实现异步显隐。
+
+但是这样确实是很土的，比方说你需要让子弹能异步就需要用单位来模拟war3里所有的子弹。你就算真的有毅力做到，实际上有点本末倒置，付出和收到的效果差距太大。要推广也是没可能的。扯远了，关于war3的话题到此为止。本教程是关于sc2的。
+
+总而言之我在SC2里实现了相位技术，然后于是本教程就是关于如何实现异步演算体（Actor），异步地隐藏和显示任意指定的一个演算体。并附了一个演示地图，里面有两个自定义函数“Show/Hide Actor For Player Group(为指定玩家组显示/隐藏指定的演算体)”和"Destroy Actor For Player Group(为指定玩家组销毁指定的演算体)"。
+
+这两个自定义函数可以让不同的玩家在同一个地方看到/听到不同的东西（包括单位、装饰物、头像、声音、效果、模型、文本、地面喷涂，甚至于地形变形都能异步）。另外别忘了，在SC2里，子弹、物品和可破坏物都已经包括在单位里了。
+
+由于本教程是Actor中的高级应用，所以对Actor了解不深的同学可能会完全看不懂。不过没关系，反正教程就在这里，先看一遍加深点印象，至少知道Actor系统能做到这个，以后掌握了足够的知识再来回顾本文就好了。
+
+另外，虽然我大部分时候要求大家能用数据编辑器实现的东西都用数据编辑器实现，不过现这个东西可不同，单独靠数据编辑器或者单独靠触发器都是不可能实现我们想要的效果的——想想就知道，数据编辑器里根本就无法指定玩家号，怎么可能对指定玩家进行操作呢？当然还有其余更深层次的原因，在教程中会慢慢提到的，于是我们开始吧：
+
+
+实际上演算体系统本身是允许异步的。比方说，某些Actor或者粒子特效可能只能创建在拥有超级显卡的电脑上，或者游戏视频设置开得很高的电脑上。一台好的电脑和一台差的电脑联机，它们并不会因为好的那台电脑上多了一些特效而导致断线。因为Actor系统只影响视觉特效和声音，并不会真正改变游戏进程。
+
+不过虽然如此，目前Actor系统没有任何官方手段让你只对指定玩家进行进行发送消息的操作。（我们现在有一个Actor-Filter属性，不过这个属性的过滤条件只有敌我中立全部四种，而且我们无法在运行时改变它，无法通用。而且只对效果域中的actor有效。对单位，文本什么的都没用。）也许以后资料片会加入异步Actor的功能也说不定，但是至少目前没有。所以我们需要用一些很特殊的方法来做到：
+
+
+
+超越
+
+尽管我们无法只对特定玩家发送Actor消息，Actor编辑器中的演算体条件(Actor Term)却允许我们对本机的视频设置（最低<->极限）进行判断，毕竟这个系统需要针对不同的视频设置来决定一些特效是否显示。那么如果我们有办法用触发器来动态改变某台特定电脑上的视频设置，然后用演算体条件来判断这个设置的值，我们不是就能曲线救国了么？
+
+不过也很显而易见的，大部分视频设置是无法通过触发器在运行时动态修改的（否则我们就能很轻易做出一张地图来烧你显卡不是？），而非视频相关的游戏设置就算能改，Actor系统也不认。不过幸运的是，有一个而且仅有一个差点就不算视频设置的设置，可以让我们用触发器来修改，而且正巧又能用Actor Term来判断——“Show Flyer Help(显示飞行单位映射)”。
+
+飞行单位映射是个什么东西？就是通常当你选中空中单位时，从机体延伸到地面的那根垂线(我方是绿色，敌方是红色，友方/中立为黄色)。这个是为了让你能正确目测飞行单位位置和高度用的。在游戏视频设置里你可以完全关闭这个功能，或者让它只在选中时显示，或者不管是否选中一直显示。也就是该设置有三个选项：全部、选中、无。
+
+偏偏触发器里就有这么条动作，可以强制修改指定玩家组的飞行单位映射设置：“Lock Flyer Helper Display(锁定飞行单位映射显示)”。还有另一条动作"Unlock Flyer Helper Display(解锁飞行单位映射显示)"，可以对指定玩家组使用，让该玩家电脑上的映射设置回到他们自己原本的设定。好方便，都省去了我们记录玩家设置并恢复的过程（其实我们甚至都记录不了，触发器无法判断这个设置的当前状态）。
+
+于是我们的第一条思路会像是这样：
+
+假设我们要对玩家1隐藏一个Actor那么——
+
+在触发器模块中，我们使用触发器先将玩家1的飞行映射设为“全部”，然后千万别忘记也要将其余玩家的飞行映射设为“无”。然后用触发器中的发送演算体消息动作向我们要操作的演算体发送一个信号（比方说"Hide"）。再解锁所有玩家的飞行映射设置。
+
+在数据编辑器模块中，我们修改那个Actor，加入一个新的事件，捕捉触发器发来的那个信号，并使用条件来判断本机的飞行映射，如果是“全部”，则对自己发送"SetVisibility"信号来隐藏自己。Actor事件的内容会像是这样：
+[codes=xml]
+<On Terms="Signal.*.Hide; FlyerHelper All" Send="SetVisibility"/>
+[/codes]
+
+如果你想提高自己的Actor技术的话可以自己测试一下，不过限于篇幅问题，我这里直接就说答案了：完全有效，能够成功地对玩家1隐藏那个演算体。
+
+我们达成了一次超越。鼓掌！啪嗒啪嗒...
+
+
+
+于是本篇完结？才怪，这跟我们真正想要实现的效果还差得远呢。
+
+
+
+超·超越
+
+刚才的那次测试证明了，通过刷一些特殊手段，异步Actor消息是可行的。但是真要按照这个方法做，就需要你在数据编辑器里修改那个Actor，并添加Actor事件。而如果我们想要让“任意”Actor都能异步显隐，岂不是得把所有的Actor都改一遍？虽然工作量也不算多到不可能承担，虽然我们可以用宏（CActorEventMacro）来减少操作量，但起码也有两三千个对象要改，终究还是很土。超级浪费时间和空间。
+
+所以我们需要一个通用的方案。说到底数据编辑器是死的，所以只有从触发器那边想办法。
+
+不幸的是：一来我们没法用触发器来动态添加演算体事件；二来虽然我们可以用触发器来直接发送演算体消息，但是只能发送，无法进行条件判断，所以设置飞行映射就毫无意义。
+
+两条都是死路，这岂不是无路可走了？
+
+NO。当面临两条死路的时候，想想还有没有第三条路。当确实没有第三条路的时候，只有我们自己想办法砸出一条路来了。在这里，大家要提前感谢一下感谢演算体系统中的别名系统和引用系统。
+
+重新审视一下整个问题，并考虑一下触发器和数据编辑器各自的优势，以及它们是否已经各尽所能了的话。那就是触发器的自由度极高。比如针对指定玩家，针对指定Actor进行操作，不靠触发器是做不到的。另一方面，数据编辑器也虽然比较死板，却执行效率高，而且有许多触发器无法实现的功能，比如说判断演算体条件。但在这里，数据编辑器另一项优势还没体现出来：数据编辑器不但可以判断演算体条件，决定是否发送消息，还能在发送消息的时候决定要把消息发送给谁——也就是说并不是只能发给自己啊。
+
+数据编辑器里指定演算体消息发送目标的栏位可以直接填写目标的actor ID，也可以填写它们的别名或者引用。实在是相当方便。所以我们并不真的需要修改每一个Actor，只需要新建一个代理演算体，让它判断飞行映射条件，然后把消息转发给我们真正想要操作的演算体就好啦。
+
+本着能省则省的原则，制作这样一个代理演算体，使用CActorSimple类就足够了。然后只要想办法把我们的想要操作的Actor弄成数据编辑器可以发送消息的目标就行了。
+
+于是我们的第二条思路就类似这样：
+
+在触发器模块中，我们使用触发器设好飞行映射。然后给我们想要进行操作的演算体发送"Create xxxx"(xxxx是我们的代理演算体的ID)消息。这样它就会创建一个代理演算体。然后我们立刻使用"Actor From Actor"函数，并使用系统引用"::LastCreatedActual"来捕捉到这个刚创建的代理。再发送消息给代理，然后销毁代理，解锁飞行映射。
+
+在数据编辑器模块中，我们用CActorSimple新建一个代理演算体。捕捉触发器发来的信号，判断飞行映射，并决定是否发送相应消息。然后发送的目标写"::Creator"(创建当前演算体的那个演算体，也就是我们想要操作的那个演算体啦)。
+
+如果这样能行的话，我们的目的就达到了呢。
+
+可惜这样是不行的。这有个奇怪的bug，当你用触发器来发送"Create"消息的时候，"::Creator"这个系统引用不会被正确射为被创建的Actor的创建者，所以发送的消息无法达到我们要操作的目标——这是拦在我们面前的最后一道障碍了。
+
+当时，这个障碍花了我3秒钟——都这么一路砸过来了，这样的障碍还拦得住我么？而且解决的方法有很多，比如说我们可以用触发器来发送演算体消息，来手动设置"::Creator"。当然我们也可以使用别名系统。都可以，只是使用别名的话，在数据编辑器里发送消息的目标也要改为相应的别名就是了。
+
+
+
+异步显示/隐藏/销毁演算体的自定义函数示例及演示地图
+
+大功告成，下面的事情就只是发个演示而已了。这张演示地图里有两个自定义函数"Show/Hide Actor For Player Group"和"Destroy Actor For Player Group"分别用来为不同玩家组显示、隐藏和销毁演算体。
+
+在这两个函数里，我通过使用"AliasAdd"消息来给目标演算体加上临时别名"_TriggerTarget"的方式来为代理演算体指定发送目标。并在结束后使用"AliasRemove"来移除这个临时别名。而我创建的代理演算体的ID叫"TriggerPerPlayerActorAgent"。
+
+"Show/Hide Actor For Player Group"函数的详情：
+
+[trigger]
+Show/Hide Actor For Player Group
+    Options: Action
+    Return Type: (None)
+    Parameters
+        Players = (Active Players) <Player Group>
+        Actor <Actor>
+        Show = Show <Show/Hide Option>
+    Grammar Text: Show Actor For Players
+    Hint Text: (None)
+    Custom Script Code
+    Local Variables
+        Agent = No Actor <Actor>
+        OtherPlayers = (Active Players) <Player Group>
+    Actions
+        Player Group - Remove all players in Players from OtherPlayers
+        UI - Lock flyer helper display for players in Players to All
+        UI - Lock flyer helper display for players in OtherPlayers to None
+        Actor - Send message "Create TriggerPerPlayerActorAgent" to actor Actor
+        Variable - Set Agent = (Actor connected to Actor via reference "::LastCreatedActual")
+        Actor - Send message "AliasAdd _TriggerTarget" to actor Actor
+        General - If (Conditions) then do (Actions) else do (Actions)
+            If
+                Show == Show
+            Then
+                Actor - Send message "Signal Show" to actor Agent
+            Else
+                Actor - Send message "Signal Hide" to actor Agent
+        Actor - Send message "AliasRemove _TriggerTarget" to actor Actor
+        Actor - Send message "Destroy" to actor Agent
+        UI - Unlock flyer helper display for players in (All players)
+[/trigger]
+
+
+"Destroy Actor For Player Group"函数的内容基本和上一个函数一样，只是接收不同的信号，并发送不同的消息而已。
+[trigger]
+Destroy Actor For Player Group
+    Options: Action
+    Return Type: (None)
+    Parameters
+        Players = (Active Players) <Player Group>
+        Actor <Actor>
+        Immediate = Off <On/Off Option>
+    Grammar Text: Destroy Actor For Players with Immediate Immediate
+    Hint Text: (None)
+    Custom Script Code
+    Local Variables
+        Agent = No Actor <Actor>
+        OtherPlayers = (Active Players) <Player Group>
+    Actions
+        Player Group - Remove all players in Players from OtherPlayers
+        UI - Lock flyer helper display for players in Players to All
+        UI - Lock flyer helper display for players in OtherPlayers to None
+        Actor - Send message "Create TriggerPerPlayerActorAgent" to actor Actor
+        Variable - Set Agent = (Actor connected to Actor via reference "::LastCreatedActual")
+        Actor - Send message "AliasAdd _TriggerTarget" to actor Actor
+        General - If (Conditions) then do (Actions) else do (Actions)
+            If
+                Immediate == On
+            Then
+                Actor - Send message "Signal Destroy_Immediate" to actor Agent
+            Else
+                Actor - Send message "Signal Destroy_Normal" to actor Agent
+        Actor - Send message "AliasRemove _TriggerTarget" to actor Actor
+        Actor - Send message "Destroy" to actor Agent
+        UI - Unlock flyer helper display for players in (All players)
+[/trigger]
+
+
+而代理演算体"TriggerPerPlayerActorAgent"的内容：
+[codes=xml]
+    <CActorSimple id="TriggerPerPlayerActorAgent">
+        <On Terms="Signal.*.Show; FlyerHelper All" Target="_TriggerTarget" Send="SetVisibility 1"/>
+        <On Terms="Signal.*.Hide; FlyerHelper All" Target="_TriggerTarget" Send="SetVisibility"/>
+        <On Terms="Signal.*.Destroy_Immediate; FlyerHelper All" Target="_TriggerTarget" Send="Destroy Immediate"/>
+        <On Terms="Signal.*.Destroy_Normal; FlyerHelper All" Target="_TriggerTarget" Send="Destroy"/>
+    </CActorSimple>
+[/codes]
+
+区区四行，实在是简洁的要命，不是么？
+
+
+
+关于演示地图：
+
+地图里有个测试触发器，外加两个上面列出的自定义函数。
+
+这张地图可以进两人，任意一个玩家按下ESC一次，就会执行以下操作：
+
+1]销毁玩家1电脑上的轨道指挥部的主演算体（但是底座的演算体还在，所以你会看到一个黑色的方块底座）
+
+2]为玩家1隐藏任意两个单位，显示任意两个单位。
+
+3]为玩家2隐藏任意两个单位，显示任意两个单位。
+
+4]分别为玩家1和玩家2隐藏特定的装饰物，比如玩家1隐藏的是Xel'Naga Hull Reactor(doodad), Fallen Asteroids Scattered(doodad), Char Arm(doodad)。而玩家2隐藏的是Store Front(doodad)。
+
+这张地图可以本地测试也可以联机测试，我已经把这个演示传到美服战网上，美服的人搜索"Per Player Actor"就能测试了。

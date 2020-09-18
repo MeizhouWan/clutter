@@ -1,0 +1,19 @@
+增加BankBackup和BankRestore固有触发器函数。
+开发团队注：BankBackup可以用在MeleeInit或Generic事件中。这样就可以让你在每次调用BankBackup时在数据集文件目录的备份目录中创建一个新的数据集备份文件。但我们还是推荐使用BankSave固有触发器来保存你的数据集文件。
+
+重新添加被否决的触发器循环：
+	IntLoopCurrentDeprecated
+	PlayerGroupLoopCurrentDeprecated
+	UnitGroupLoopCurrentDeprecated
+	ForEachInteger2Deprecated
+	ForEachIntegerDeprecated
+	PickEachIntegerDeprecated
+	ForEachPlayerInGroupDeprecated
+	PickEachPlayerInGroupDeprecated
+	PickEachUnitInGroupDeprecated
+	ForEachUnitInGroupDeprecated
+	UnitGroupLoopCurrentDeprecated
+在Windows内开放Scintilla供自定义代码编辑。
+为编辑器载入时间增加性能改善。
+为数据编辑器、界面编辑器、动画编辑器、触发器元素选择器、地形编辑器和文本编辑器增加多项目搜索，搜索项目时用逗号分隔。
+进一步改善Galaxy VM内部性能。
