@@ -1,11 +1,18 @@
 make flat map mod:
 
-Users\xxx\Documents\Paradox Interactive\Europa Universalis IV\mod
-flat_map\map
+1.in "Europa Universalis IV\mod" folder, creat an file to "faltmap.mod" and an folder to "flatmap".
+2.edit "flatmap.mod" to open notepad.exe:
+name = "flatmap"
+archive = "mod/flatmap"
+supported_version = "*.*.*"
+
+3.flatmap\map
     1.lakes
         00_lakes.txt
             height = 0
     2.heightmap.bmp
-        rbg(606060)
+        rpg mode 24bit
+        #606060
     3.world_normal.bmp
-        #7b7fff
+        index mode 4bit
+        #8080ff
